@@ -69,7 +69,7 @@ def calcShannonEnt(dataSet):
     shannonEnt = 0.0
     for key in labelCounts:
         # 使用所有类标签的发生频率计算类别出现的概率。
-        prob = float(labelCounts[key])/numEntries
+        prob = float(labelCounts[key]) / numEntries
         # log base 2 
         # 计算香农熵，以 2 为底求对数
         shannonEnt -= prob * log(prob, 2)
@@ -99,7 +99,7 @@ def splitDataSet(dataSet, index, value):
     """
     # -----------切分数据集的第一种方式 start------------------------------------
     retDataSet = []
-    for featVec in dataSet: 
+    for featVec in dataSet:
         # index列为value的数据集【该数据集需要排除index列】
         # 判断index列的值是否为value
         if featVec[index] == value:
@@ -124,7 +124,7 @@ def splitDataSet(dataSet, index, value):
             [1, 2, 3, [4, 5, 6]]
             [1, 2, 3, [4, 5, 6], 7, 8, 9]
             '''
-            reducedFeatVec.extend(featVec[index+1:])
+            reducedFeatVec.extend(featVec[index + 1:])
             # [index+1:]表示从跳过 index 的 index+1行，取接下来的数据
             # 收集结果值 index列为value的行【该行需要排除index列】
             retDataSet.append(reducedFeatVec)
@@ -166,12 +166,12 @@ def chooseBestFeatureToSplit(dataSet):
         # 遍历当前特征中的所有唯一属性值，对每个唯一属性值划分一次数据集，计算数据集的新熵值，并对所有唯一特征值得到的熵求和。
         for value in uniqueVals:
             subDataSet = splitDataSet(dataSet, i, value)
-            prob = len(subDataSet)/float(len(dataSet))
+            prob = len(subDataSet) / float(len(dataSet))
             newEntropy += prob * calcShannonEnt(subDataSet)
         # gain[信息增益]: 划分数据集前后的信息变化， 获取信息熵最大的值
         # 信息增益是熵的减少或者是数据无序度的减少。最后，比较所有特征中的信息增益，返回最好特征划分的索引值。
         infoGain = baseEntropy - newEntropy
-        print 'infoGain=', infoGain, 'bestFeature=', i, baseEntropy, newEntropy
+        print('infoGain=', infoGain, 'bestFeature=', i, baseEntropy, newEntropy)
         if (infoGain > bestInfoGain):
             bestInfoGain = infoGain
             bestFeature = i
@@ -246,7 +246,7 @@ def createTree(dataSet, labels):
     myTree = {bestFeatLabel: {}}
     # 注：labels列表是可变对象，在PYTHON函数中作为参数时传址引用，能够被全局修改
     # 所以这行代码导致函数外的同名变量被删除了元素，造成例句无法执行，提示'no surfacing' is not in list
-    del(labels[bestFeat])
+    del (labels[bestFeat])
     # 取出最优列，然后它的branch做分类
     featValues = [example[bestFeat] for example in dataSet]
     uniqueVals = set(featValues)
@@ -278,7 +278,7 @@ def classify(inputTree, featLabels, testVec):
     # 测试数据，找到根节点对应的label位置，也就知道从输入的数据的第几位来开始分类
     key = testVec[featIndex]
     valueOfFeat = secondDict[key]
-    print '+++', firstStr, 'xxx', secondDict, '---', key, '>>>', valueOfFeat
+    print('+++', firstStr, 'xxx', secondDict, '---', key, '>>>', valueOfFeat)
     # 判断分枝是否结束: 判断valueOfFeat是否是dict类型
     if isinstance(valueOfFeat, dict):
         classLabel = classify(valueOfFeat, featLabels, testVec)
@@ -298,7 +298,7 @@ def storeTree(inputTree, filename):
     # -------------- 第二种方法 start --------------
     with open(filename, 'w') as fw:
         pickle.dump(inputTree, fw)
-    # -------------- 第二种方法 start --------------
+        # -------------- 第二种方法 start --------------
 
 
 def grabTree(filename):
@@ -324,9 +324,11 @@ def fishTest():
 
     import copy
     myTree = createTree(myDat, copy.deepcopy(labels))
-    print myTree
+    print
+    myTree
     # [1, 1]表示要取的分支上的节点位置，对应的结果值
-    print classify(myTree, labels, [1, 1])
+    print
+    classify(myTree, labels, [1, 1])
 
     # 画图可视化展现
     dtPlot.createPlot(myTree)
@@ -350,7 +352,8 @@ def ContactLensesTest():
     lensesLabels = ['age', 'prescript', 'astigmatic', 'tearRate']
     # 使用上面的创建决策树的代码，构造预测隐形眼镜的决策树
     lensesTree = createTree(lenses, lensesLabels)
-    print lensesTree
+    print
+    lensesTree
     # 画图可视化展现
     dtPlot.createPlot(lensesTree)
 

@@ -154,15 +154,15 @@ def main():
     hoRatio = 0.05  # 设置测试数据的的一个比例（训练数据集比例=1-hoRatio）
     m = normMat.shape[0]  # m 表示数据的行数，即矩阵的第一维
     numTestVecs = int(m * hoRatio)  # 设置测试的样本数量， numTestVecs:m表示训练样本的数量
-    print u'用于测试的数据量: {0}'.format(numTestVecs)
+    print(u'用于测试的数据量: {0}'.format(numTestVecs))
     errorCount = 0  # 统计错误数量
     for i in range(numTestVecs):
         # 对数据测试
         classifierResult = classify0(normMat[i, :], normMat[numTestVecs:m, :], classLabel_Vector[numTestVecs:m], 3)
-        print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, classLabel_Vector[i])
+        print(u"the classifier came back with: %d, the real answer is: %d" % (classifierResult, classLabel_Vector[i]))
         if classifierResult != classLabel_Vector[i]:
             errorCount += 1
-    print u'测试的数量:{0}\n错误的数量:{1}\n错误的比率:{2}'.format(numTestVecs, errorCount, errorCount / float(numTestVecs))
+    print(u'测试的数量:{0}\n错误的数量:{1}\n错误的比率:{2}'.format(numTestVecs, errorCount, errorCount / float(numTestVecs)))
 
 
 if __name__ == '__main__':
