@@ -1,16 +1,28 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
-'''
-Created on Oct 19, 2010
-Update  on 2017-05-18
-@author: Peter Harrington/羊三/小瑶
-《机器学习实战》更新地址：https://github.com/apachecn/MachineLearning
-'''
+# -*- coding: utf-8 -*-
+"""
+# @Time    : 2018/3/12 12:42
+# @Author  : Spareribs
+# @File    : naivebayes.py
+"""
+import os
 from numpy import *
+
 """
 p(xy)=p(x|y)p(y)=p(y|x)p(x)
 p(x|y)=p(y|x)p(x)/p(y)
 """
+
+
+def getdatapath(filename=""):
+    # print u"当前目录[含文件名] 绝对路径：{0}".format(os.path.abspath(__file__))
+    # print u"当前目录[不含文件名] 绝对路径：{0}".format(os.path.dirname(os.path.abspath(__file__)))
+    # print u"返回上一级目录：{0}".format(os.path.pardir)
+    # print u"父级目录demo 绝对路径：{0}".format(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+    demo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+    data_path = os.path.join(demo_path, "data", filename)
+    print(data_path)
+    return data_path
 
 
 # 项目案例1: 屏蔽社区留言板的侮辱性言论
@@ -20,13 +32,15 @@ def loadDataSet():
     创建数据集
     :return: 单词列表postingList, 所属类别classVec
     """
-    postingList = [['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
-                   ['maybe', 'not', 'take', 'him', 'to', 'dog', 'park', 'stupid'],
-                   ['my', 'dalmation', 'is', 'so', 'cute', 'I', 'love', 'him'],
-                   ['stop', 'posting', 'stupid', 'worthless', 'gar e'],
-                   ['mr', 'licks', 'ate', 'my', 'steak', 'how', 'to', 'stop', 'him'],
-                   ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']]
-    classVec = [0, 1, 0, 1, 0, 1]  # 1 is abusive, 0 not
+    postingList = [
+        ['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
+        ['maybe', 'not', 'take', 'him', 'to', 'dog', 'park', 'stupid'],
+        ['my', 'dalmation', 'is', 'so', 'cute', 'I', 'love', 'him'],
+        ['stop', 'posting', 'stupid', 'worthless', 'gare'],
+        ['mr', 'licks', 'ate', 'my', 'steak', 'how', 'to', 'stop', 'him'],
+        ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']
+    ]
+    classVec = [0, 1, 0, 1, 0, 1]
     return postingList, classVec
 
 
@@ -51,7 +65,7 @@ def setOfWords2Vec(vocabList, inputSet):
     :return: 匹配列表[0,1,0,1...]，其中 1与0 表示词汇表中的单词是否出现在输入的数据集中
     """
     # 创建一个和词汇表等长的向量，并将其元素都设置为0
-    returnVec = [0] * len(vocabList)# [0,0......]
+    returnVec = [0] * len(vocabList)  # [0,0......]
     # 遍历文档中的所有单词，如果出现了词汇表中的单词，则将输出的文档向量中的对应值设为1
     for word in inputSet:
         if word in vocabList:
@@ -76,8 +90,8 @@ def _trainNB0(trainMatrix, trainCategory):
     # 代表的就是多少个侮辱性文件，与文件的总数相除就得到了侮辱性文件的出现概率
     pAbusive = sum(trainCategory) / float(numTrainDocs)
     # 构造单词出现次数列表
-    p0Num = zeros(numWords) # [0,0,0,.....]
-    p1Num = zeros(numWords) # [0,0,0,.....]
+    p0Num = zeros(numWords)  # [0,0,0,.....]
+    p1Num = zeros(numWords)  # [0,0,0,.....]
 
     # 整个数据集单词出现总数
     p0Denom = 0.0
@@ -85,7 +99,7 @@ def _trainNB0(trainMatrix, trainCategory):
     for i in range(numTrainDocs):
         # 遍历所有的文件，如果是侮辱性文件，就计算此侮辱性文件中出现的侮辱性单词的个数
         if trainCategory[i] == 1:
-            p1Num += trainMatrix[i] #[0,1,1,....]->[0,1,1,...]
+            p1Num += trainMatrix[i]  # [0,1,1,....]->[0,1,1,...]
             p1Denom += sum(trainMatrix[i])
         else:
             # 如果不是侮辱性文件，则计算非侮辱性文件中出现的侮辱性单词的个数
@@ -93,7 +107,7 @@ def _trainNB0(trainMatrix, trainCategory):
             p0Denom += sum(trainMatrix[i])
     # 类别1，即侮辱性文档的[P(F1|C1),P(F2|C1),P(F3|C1),P(F4|C1),P(F5|C1)....]列表
     # 即 在1类别下，每个单词出现次数的占比
-    p1Vect = p1Num / p1Denom# [1,2,3,5]/90->[1/90,...]
+    p1Vect = p1Num / p1Denom  # [1,2,3,5]/90->[1/90,...]
     # 类别0，即正常文档的[P(F1|C0),P(F2|C0),P(F3|C0),P(F4|C0),P(F5|C0)....]列表
     # 即 在0类别下，每个单词出现次数的占比
     p0Vect = p0Num / p0Denom
@@ -115,9 +129,9 @@ def trainNB0(trainMatrix, trainCategory):
     pAbusive = sum(trainCategory) / float(numTrainDocs)
     # 构造单词出现次数列表
     # p0Num 正常的统计
-    # p1Num 侮辱的统计 
+    # p1Num 侮辱的统计
     # 避免单词列表中的任何一个单词为0，而导致最后的乘积为0，所以将每个单词的出现次数初始化为 1
-    p0Num = ones(numWords)#[0,0......]->[1,1,1,1,1.....]
+    p0Num = ones(numWords)  # [0,0......]->[1,1,1,1,1.....]
     p1Num = ones(numWords)
 
     # 整个数据集单词出现总数，2.0根据样本/实际调查结果调整分母的值（2主要是避免分母为0，当然值可以调整）
@@ -225,20 +239,21 @@ def spamTest():
     Returns:
         对测试集中的每封邮件进行分类，若邮件分类错误，则错误数加 1，最后返回总的错误百分比。
     '''
+    data_path = getdatapath()
     docList = []
     classList = []
     fullText = []
     for i in range(1, 26):
         # 切分，解析数据，并归类为 1 类别
-        wordList = textParse(open('input/4.NaiveBayes/email/spam/%d.txt' % i).read())
+        wordList = textParse(open('{0}email/spam/{1}.txt'.format(data_path, i)).read())
         docList.append(wordList)
         classList.append(1)
         # 切分，解析数据，并归类为 0 类别
-        wordList = textParse(open('input/4.NaiveBayes/email/ham/%d.txt' % i).read())
+        wordList = textParse(open('{0}email/ham/{1}.txt'.format(data_path, i)).read())
         docList.append(wordList)
         fullText.extend(wordList)
         classList.append(0)
-    # 创建词汇表    
+    # 创建词汇表
     vocabList = createVocabList(docList)
     trainingSet = range(50)
     testSet = []
@@ -247,7 +262,7 @@ def spamTest():
         # random.uniform(x, y) 随机生成一个范围为 x - y 的实数
         randIndex = int(random.uniform(0, len(trainingSet)))
         testSet.append(trainingSet[randIndex])
-        del(trainingSet[randIndex])
+        del (trainingSet[randIndex])
     trainMat = []
     trainClasses = []
     for docIndex in trainingSet:
@@ -261,95 +276,129 @@ def spamTest():
             errorCount += 1
     print 'the errorCount is: ', errorCount
     print 'the testSet length is :', len(testSet)
-    print 'the error rate is :', float(errorCount)/len(testSet)
+    print 'the error rate is :', float(errorCount) / len(testSet)
 
 
 def testParseTest():
-    print textParse(open('input/4.NaiveBayes/email/ham/1.txt').read())
+    data_path = getdatapath()
+    print textParse(open('{0}email/ham/1.txt'.format(data_path)).read())
 
 
 # -----------------------------------------------------------------------------------
 # 项目案例3: 使用朴素贝叶斯从个人广告中获取区域倾向
 
 # 将文本文件解析成 词条向量
-def setOfWords2VecMN(vocabList,inputSet):
-    returnVec=[0]*len(vocabList)  # 创建一个其中所含元素都为0的向量
+def setOfWords2VecMN(vocabList, inputSet):
+    returnVec = [0] * len(vocabList)  # 创建一个其中所含元素都为0的向量
     for word in inputSet:
         if word in vocabList:
-                returnVec[vocabList.index(word)]+=1
+            returnVec[vocabList.index(word)] += 1
     return returnVec
 
 
-#文件解析
+# 文件解析
 def textParse(bigString):
     import re
-    listOfTokens=re.split(r'\W*', bigString)
-    return [tok.lower() for tok in listOfTokens if len(tok)>2]
+    listOfTokens = re.split(r'\W*', bigString)
+    return [tok.lower() for tok in listOfTokens if len(tok) > 2]
 
 
-#RSS源分类器及高频词去除函数
-def calcMostFreq(vocabList,fullText):
+# RSS源分类器及高频词去除函数
+def calcMostFreq(vocabList, fullText):
     import operator
-    freqDict={}
-    for token in vocabList:  #遍历词汇表中的每个词
-        freqDict[token]=fullText.count(token)  #统计每个词在文本中出现的次数
-    sortedFreq=sorted(freqDict.iteritems(),key=operator.itemgetter(1),reverse=True)  #根据每个词出现的次数从高到底对字典进行排序
-    return sortedFreq[:30]   #返回出现次数最高的30个单词
-def localWords(feed1,feed0):
+    freqDict = {}
+    for token in vocabList:  # 遍历词汇表中的每个词
+        freqDict[token] = fullText.count(token)  # 统计每个词在文本中出现的次数
+    sortedFreq = sorted(freqDict.iteritems(), key=operator.itemgetter(1), reverse=True)  # 根据每个词出现的次数从高到底对字典进行排序
+    return sortedFreq[:30]  # 返回出现次数最高的30个单词
+
+
+def localWords(feed1, feed0):
     import feedparser
-    docList=[];classList=[];fullText=[]
-    minLen=min(len(feed1['entries']),len(feed0['entries']))
+    docList = [];
+    classList = [];
+    fullText = []
+    minLen = min(len(feed1['entries']), len(feed0['entries']))
     for i in range(minLen):
-        wordList=textParse(feed1['entries'][i]['summary'])   #每次访问一条RSS源
+        wordList = textParse(feed1['entries'][i]['summary'])  # 每次访问一条RSS源
         docList.append(wordList)
         fullText.extend(wordList)
         classList.append(1)
-        wordList=textParse(feed0['entries'][i]['summary'])
+        wordList = textParse(feed0['entries'][i]['summary'])
         docList.append(wordList)
         fullText.extend(wordList)
         classList.append(0)
-    vocabList=createVocabList(docList)
-    top30Words=calcMostFreq(vocabList,fullText)
+    vocabList = createVocabList(docList)
+    top30Words = calcMostFreq(vocabList, fullText)
     for pairW in top30Words:
-        if pairW[0] in vocabList:vocabList.remove(pairW[0])    #去掉出现次数最高的那些词
-    trainingSet=range(2*minLen);testSet=[]
+        if pairW[0] in vocabList: vocabList.remove(pairW[0])  # 去掉出现次数最高的那些词
+    trainingSet = range(2 * minLen);
+    testSet = []
     for i in range(20):
-        randIndex=int(random.uniform(0,len(trainingSet)))
+        randIndex = int(random.uniform(0, len(trainingSet)))
         testSet.append(trainingSet[randIndex])
-        del(trainingSet[randIndex])
-    trainMat=[];trainClasses=[]
+        del (trainingSet[randIndex])
+    trainMat = [];
+    trainClasses = []
     for docIndex in trainingSet:
-        trainMat.append(bagOfWords2VecMN(vocabList,docList[docIndex]))
+        trainMat.append(bagOfWords2VecMN(vocabList, docList[docIndex]))
         trainClasses.append(classList[docIndex])
-    p0V,p1V,pSpam=trainNBO(array(trainMat),array(trainClasses))
-    errorCount=0
+    p0V, p1V, pSpam = trainNBO(array(trainMat), array(trainClasses))
+    errorCount = 0
     for docIndex in testSet:
-        wordVector=bagOfWords2VecMN(vocabList,docList[docIndex])
-        if classifyNB(array(wordVector),p0V,p1V,pSpam)!=classList[docIndex]:
-            errorCount+=1
-    print 'the error rate is:',float(errorCount)/len(testSet)
-    return vocabList,p0V,p1V
+        wordVector = bagOfWords2VecMN(vocabList, docList[docIndex])
+        if classifyNB(array(wordVector), p0V, p1V, pSpam) != classList[docIndex]:
+            errorCount += 1
+    print 'the error rate is:', float(errorCount) / len(testSet)
+    return vocabList, p0V, p1V
 
 
 # 最具表征性的词汇显示函数
-def getTopWords(ny,sf):
+def getTopWords(ny, sf):
     import operator
-    vocabList,p0V,p1V=localWords(ny,sf)
-    topNY=[];topSF=[]
+    vocabList, p0V, p1V = localWords(ny, sf)
+    topNY = [];
+    topSF = []
     for i in range(len(p0V)):
-        if p0V[i]>-6.0:topSF.append((vocabList[i],p0V[i]))
-        if p1V[i]>-6.0:topNY.append((vocabList[i],p1V[i]))
-    sortedSF=sorted(topSF,key=lambda pair:pair[1],reverse=True)
+        if p0V[i] > -6.0: topSF.append((vocabList[i], p0V[i]))
+        if p1V[i] > -6.0: topNY.append((vocabList[i], p1V[i]))
+    sortedSF = sorted(topSF, key=lambda pair: pair[1], reverse=True)
     print "SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**"
     for item in sortedSF:
         print item[0]
-    sortedNY=sorted(topNY,key=lambda pair:pair[1],reverse=True)
+    sortedNY = sorted(topNY, key=lambda pair: pair[1], reverse=True)
     print "NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**"
     for item in sortedNY:
         print item[0]
 
 
 if __name__ == "__main__":
+    # 例子一：
+    # listOPosts, listClasses = loadDataSet()
+    # print(u"[Info]: 单词列表{0}\n[Info]: 所属类别{1}".format(listOPosts, listClasses))
+    # myVocabList = createVocabList(listOPosts)
+    # print(u"[Info]: 去重后所有单词的集合:{0}".format(myVocabList))
+    # setOfWords2Vec0 = setOfWords2Vec(myVocabList, listOPosts[0])
+    # setOfWords2Vec3 = setOfWords2Vec(myVocabList, listOPosts[3])
+    # print(u"[Info]: {0}\n[Info]: {1}".format(setOfWords2Vec0, setOfWords2Vec3))
+    # trainMat = []
+    # for postinDoc in listOPosts:
+    #     trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
+    # print(u"[Info]: {0}".format(trainMat))
+    # p0V, p1V, pAV = _trainNB0(trainMat, listClasses)
+    # print(u"[Info]: {0}\n{1}\n{2}".format(p0V, p1V, pAV))
+    # p0V, p1V, pAV = trainNB0(trainMat, listClasses)
+    # print(u"[Info]: {0}\n{1}\n{2}".format(p0V, p1V, pAV))
     # testingNB()
+
+    # 例子二：
+    # 切分文本
+    mySent = "This book is the best book on Python or M.L. I have ever laid eyes upon"
+    print(textParse(mySent))
+    # 交叉验证
     spamTest()
-    # laTest()
+
+    # 例子三：
+    # TODO
+    "http://newyork.craigslist.org/stp/index.rss"
+    "http://sfbay.craigslist.org/stp/index.rss"
