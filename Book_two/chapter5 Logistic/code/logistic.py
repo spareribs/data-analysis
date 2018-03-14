@@ -316,7 +316,6 @@ if __name__ == "__main__":
     weights = stocGradAscent1(array(dataMat), labelMat)
     print(u"{0}".format(weights))
     plotBestFit(array(dataMat), labelMat, weights)
-
     # simpleTest()
     # classifyVector(inX, weights)
     # colicTest()
